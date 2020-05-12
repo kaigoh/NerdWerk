@@ -1,0 +1,22 @@
+{
+    "name": "kaigoh/nerdwerk",
+    "description": "NerdWerk is a simple PHP framework for rapid development",
+    "type": "project",
+    "authors": [
+        {
+            "name": "kaigoh",
+            "email": "kai@gohegan.uk"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "NerdWerk\\": "framework/",
+            "NerdWerkApp\\": "application/"
+        }
+    },
+    "require": {
+        "doctrine/annotations": "^1.10",
+        "bramus/router": "^1.4",
+        "vlucas/phpdotenv": "^4.1"
+    }
+}
