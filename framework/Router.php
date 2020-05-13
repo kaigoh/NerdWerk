@@ -15,7 +15,27 @@ class Router
         $this->router = new \Bramus\Router\Router();
 
         // Populate routes from annotations...
-        // ToDo
+        AnnotationRegistry::registerLoader('class_exists');
+        $reader = new AnnotationReader();
+        $controllerPath = NW_APPLICATION_PATH.DIRECTORY_SEPARATOR."Controllers";
+        $controllerFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($controllerPath));
+        foreach($controllerFiles as $file => $fileInfo)
+        {
+            if($fileInfo->isFile() && $fileInfo->getExtension() == "php")
+            {
+                $classNameRaw = array_filter(explode(DIRECTORY_SEPARATOR, str_replace([$controllerPath, ".php"], "", $fileInfo->getPathname())));
+                $className = "\\NerdWerkApp\\Controllers\\".implode("\\", $classNameRaw);
+                $reflectionClass = new \ReflectionClass($className);
+                foreach($reflectionClass->getMethods() as $classMethod)
+                {
+                    $routeAnnotations = $reader->getMethodAnnotation($classMethod, "\\NerdWerk\\Annotations\\Route");
+                    if($routeAnnotations instanceof \NerdWerk\Annotations\Route)
+                    {
+                        $this->router->match(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, $classMethod->class."@".$classMethod->name);
+                    }
+                }
+            }
+        }
 
         // Populate routes from config files...
         foreach($config->routes as $route)
@@ -31,4 +51,5 @@ class Router
         // Run the configured routes
         $this->router->run();
     }
+
 }

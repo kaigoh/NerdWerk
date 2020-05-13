@@ -2,11 +2,13 @@
 
 namespace NerdWerk\Annotations;
 
-final class Router
+/**
+ * @Annotation
+ */
+final class Route
 {
 
-	public $route;
 	public $method;
-	public $parameters;
+	public $pattern;
 
 }

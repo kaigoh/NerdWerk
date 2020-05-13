@@ -9,20 +9,20 @@ class Config
 
     private $config = [];
 
-    public function __construct($configDirectory = "config")
+    public function __construct()
     {
         // Load up configuration files from the config directory...
-        if(file_exists($configDirectory) && is_dir($configDirectory))
+        if(file_exists(NW_CONFIG_PATH) && is_dir(NW_CONFIG_PATH))
         {
             // Include each file in the config directory (that is a .conf.php file...)
-            $confDir = new \DirectoryIterator($configDirectory);
+            $confDir = new \DirectoryIterator(NW_CONFIG_PATH);
             foreach($confDir as $confFile)
             {
                 if(!$confFile->isDot() && $confFile->getFilename())
                 {
                     if($this->isConfigFile($confFile->getFilename()))
                     {
-                        include($configDirectory.DIRECTORY_SEPARATOR.$confFile->getFilename());
+                        include(NW_CONFIG_PATH.DIRECTORY_SEPARATOR.$confFile->getFilename());
                     }
                 }
             }
