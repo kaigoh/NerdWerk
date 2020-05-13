@@ -24,6 +24,34 @@ define("NW_CACHE_PATH", "cache"); // You shouldn't need to ever change this, but
 define("NW_ENVIRONMENT", "development"); // Change this to "production" once you are ready!
 
 /**
- * Run the framework
+ * CLI Routing
+ * 
+ * Set some properties in the $_SERVER array that are missing when the script is called from the CLI
  */
-$framework = new NerdWerk\Bootstrap();
+if(php_sapi_name() == "cli")
+{
+    $_SERVER['REQUEST_METHOD'] = "GET";
+    $_SERVER['SERVER_PROTOCOL'] = "HTTP/1.1";
+    // Make the CLI arguments look like a URL...
+    $_SERVER['REQUEST_URI'] = "/".implode("/", array_slice($argv, 1));
+}
+
+/**
+ * Initialise the framework...
+ */
+
+$framework = new NerdWerk\Framework();
+
+/**
+ * ...and run it
+ */
+$framework->start();
+
+/**
+ * Function to allow a reference to the Framework object to be obtained
+ */
+function GetFramework()
+{
+    global $framework;
+    return $framework;
+}

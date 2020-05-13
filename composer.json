@@ -17,6 +17,7 @@
     "require": {
         "doctrine/annotations": "^1.10",
         "bramus/router": "^1.4",
-        "vlucas/phpdotenv": "^4.1"
+        "vlucas/phpdotenv": "^4.1",
+        "doctrine/cache": "^1.10"
     }
 }
