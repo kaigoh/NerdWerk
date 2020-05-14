@@ -13,11 +13,11 @@ class Home extends \NerdWerk\Controller
 	 */
 	public function index()
 	{
-		echo "NerdWerk PHP Framework";
+		echo "NerdWerk PHP Framework\r\n";
 	}
 
 	/**
-	 * @Route(method="get", pattern="/framework/test/{icles}")
+	 * @Route(method="get", pattern="/framework/test/{icles}", authenticationProvider="config_file")
 	 */
 	public function test($icles)
 	{
@@ -29,7 +29,7 @@ class Home extends \NerdWerk\Controller
 	 */
 	public function eventTest($timestamp)
 	{
-		echo "In eventTest! ".$timestamp;
+		//echo "In eventTest! ".$timestamp;
 	}
 
 }

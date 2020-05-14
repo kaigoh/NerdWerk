@@ -43,6 +43,11 @@ if(php_sapi_name() == "cli")
 $framework = new NerdWerk\Framework();
 
 /**
+ * ...add some authentication providers...
+ */
+$framework->addAuthenticationProvider("config_file", new NerdWerk\Authentication\ConfigFileAuthenticationProvider($framework->config));
+
+/**
  * ...and run it
  */
 $framework->start();

@@ -2,5 +2,5 @@
 
 $this->config['events'] = [
     // Format is [event, callable / anonymous function]
-    ["framework_booted", function() { echo "Framework has booted!"; }],
+    //["framework_booted", function() { echo "Framework has booted!"; }],
 ];

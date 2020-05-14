@@ -9,15 +9,21 @@ use Doctrine\Common\Cache\FilesystemCache;
 
 class Router
 {
-    private $router;
 
-    public function __construct(\NerdWerk\Config $config = null)
+    private $router;
+    private $authenticationProviders = [];
+    private $user;
+
+    public function __construct(\NerdWerk\Config $config = null, $authenticationProviders = [], $user = false)
     {
         // Throw an exception if config not passed
         if(!$config)
         {
             throw new \NerdWerk\Exceptions\NerdWerkConfigException("Application configuration not passed to constructor", 100);
         }
+
+        $this->authenticationProviders = $authenticationProviders;
+        $this->user = $user;
 
         // Initialise the routing engine...
         $this->router = new \Bramus\Router\Router();
@@ -46,8 +52,38 @@ class Router
                         if($routeAnnotations->method)
                         {
                             $this->router->match(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, $classMethod->class."@".$classMethod->name);
+                            if($routeAnnotations->authenticationProvider)
+                            {
+                                $apFound = false;
+                                foreach($this->authenticationProviders as $name => $provider)
+                                {
+                                    if($routeAnnotations->authenticationProvider == $name)
+                                    {
+                                        $apFound = true;
+                                        $user = $this->user;
+                                        $this->router->before(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, function() use ($user, $routeAnnotations)
+                                        {
+                                            if(!$user || ($routeAnnotations->authenticationPermission && !$user->hasPermission(authenticationPermission)))
+                                            {
+                                                header('HTTP/1.0 403 Forbidden');
+                                                die();
+                                            }
+                                        });
+                                        break;
+                                    }
+                                }
+                                if(!$apFound)
+                                {
+                                    throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("AuthenticationProvider configured for '".$routeAnnotations->method."/".$routeAnnotations->pattern."' is not configured", 203);
+                                }
+                            }
                         } else {
-                            $this->router->all($routeAnnotations->pattern, $classMethod->class."@".$classMethod->name);
+                            if(!$routeAnnotations->authenticationProvider)
+                            {
+                                $this->router->all($routeAnnotations->pattern, $classMethod->class."@".$classMethod->name);
+                            } else {
+                                throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("Routes using authentication providers must specify route HTTP verb (i.e. GET, POST)", 202);
+                            }
                         }
                     }
                 }
