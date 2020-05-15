@@ -1,8 +1,10 @@
 <?php
 
-namespace NerdWerk\Authentication;
+namespace NerdWerk\Authentication\AuthenticationProviders;
 
-class ConfigFileAuthenticationProvider extends AuthenticationProvider
+use NerdWerk\Authentication\Directory as Directory;
+
+class ConfigFile extends \NerdWerk\Authentication\AuthenticationProvider
 {
 
     private $directory = null;
@@ -125,7 +127,7 @@ class ConfigFileAuthenticationProvider extends AuthenticationProvider
         {
             if($u = $d->userExists($username))
             {
-                if($u->testPassword(hash("sha256", $password)))
+                if($u->testPassword($password))
                 {
                     return $u;
                 }

@@ -21,6 +21,9 @@ define("NW_FRAMEWORK_PATH", "framework"); // You shouldn't need to ever change t
 define("NW_APPLICATION_PATH", "application"); // You shouldn't need to ever change this, but just in case...
 define("NW_CONFIG_PATH", "config"); // You shouldn't need to ever change this, but just in case...
 define("NW_CACHE_PATH", "cache"); // You shouldn't need to ever change this, but just in case...
+
+define("NW_AUTHENTICATION_ALGORITHM", "sha256"); // In case you need to tweak password hashing
+
 define("NW_ENVIRONMENT", "development"); // Change this to "production" once you are ready!
 
 /**
@@ -43,14 +46,19 @@ if(php_sapi_name() == "cli")
 $framework = new NerdWerk\Framework();
 
 /**
- * ...add some authentication providers...
+ * ...add an authentication provider...
  */
-$framework->addAuthenticationProvider("config_file", new NerdWerk\Authentication\ConfigFileAuthenticationProvider($framework->config));
+$framework->addAuthenticationProvider(new NerdWerk\Authentication\AuthenticationProviders\ConfigFile($framework->config));
+
+/**
+ * ...and a credential source...
+ */
+$framework->addCredentialSource(new NerdWerk\Authentication\CredentialSources\BasicHttp("NerdWerk Framework"));
 
 /**
  * ...and run it
  */
-$framework->start();
+$framework->run();
 
 /**
  * Function to allow a reference to the Framework object to be obtained
@@ -58,5 +66,5 @@ $framework->start();
 function GetFramework()
 {
     global $framework;
-    return $framework;
+    return $framework->getInstance();
 }

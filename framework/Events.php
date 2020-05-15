@@ -36,13 +36,16 @@ class Events
             {
                 $classNameRaw = array_filter(explode(DIRECTORY_SEPARATOR, str_replace([$applicationPath, ".php"], "", $fileInfo->getPathname())));
                 $className = "\\NerdWerkApp\\".implode("\\", $classNameRaw);
-                $reflectionClass = new \ReflectionClass($className);
-                foreach($reflectionClass->getMethods() as $classMethod)
+                if(class_exists($className))
                 {
-                    $eventListenerAnnotations = $reader->getMethodAnnotation($classMethod, "\\NerdWerk\\Annotations\\EventListener");
-                    if($eventListenerAnnotations instanceof \NerdWerk\Annotations\EventListener)
+                    $reflectionClass = new \ReflectionClass($className);
+                    foreach($reflectionClass->getMethods() as $classMethod)
                     {
-                        $this->listen($eventListenerAnnotations->event, [$classMethod->class, $classMethod->name]);
+                        $eventListenerAnnotations = $reader->getMethodAnnotation($classMethod, "\\NerdWerk\\Annotations\\EventListener");
+                        if($eventListenerAnnotations instanceof \NerdWerk\Annotations\EventListener)
+                        {
+                            $this->listen($eventListenerAnnotations->event, [$classMethod->class, $classMethod->name]);
+                        }
                     }
                 }
             }
@@ -51,12 +54,8 @@ class Events
         // Populate routes from config files...
         foreach($config->events as $event)
         {
-            if(count(array_values($event)) >= 2)
-            {
-                $this->listen($event[0], $event[1]);
-            } else {
-                throw new \NerdWerk\Exceptions\NerdWerkEventListenerConfigurationNotValidException("Event configuration expects two parameters: event and function / callable", 301);
-            }
+            $e = \NerdWerk\Annotations\EventListener::fromArray($event);
+            $this->listen($e->event, $e->callback);
         }
 
     }

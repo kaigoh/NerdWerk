@@ -60,7 +60,7 @@ class Domain
         {
             return $u;
         } else {
-            $u = new User($this, $username, hash("sha256", $password), $name, $email, $permissions, $groups);
+            $u = new User($this, $username, hash((defined("NW_AUTHENTICATION_ALGORITHM") ? NW_AUTHENTICATION_ALGORITHM : "sha256"), $password), $name, $email, $permissions, $groups);
             $this->users[] = $u;
             return $u;
         }

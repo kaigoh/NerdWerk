@@ -10,23 +10,36 @@ use Doctrine\Common\Cache\FilesystemCache;
 class Router
 {
 
+    private $framework;
     private $router;
-    private $authenticationProviders = [];
-    private $user;
+    public $http404Callback = null;
 
-    public function __construct(\NerdWerk\Config $config = null, $authenticationProviders = [], $user = false)
+    public function __construct(\NerdWerk\Framework $framework = null, \NerdWerk\Config $config = null, $authenticationProviders = [])
     {
+
         // Throw an exception if config not passed
         if(!$config)
         {
             throw new \NerdWerk\Exceptions\NerdWerkConfigException("Application configuration not passed to constructor", 100);
         }
 
-        $this->authenticationProviders = $authenticationProviders;
-        $this->user = $user;
+        $this->framework = $framework;
 
         // Initialise the routing engine...
         $this->router = new \Bramus\Router\Router();
+
+        // Set the 404 handler
+        $this->router->set404(function() use ($framework)
+        {
+            // Try and hand the 404 error off to the applications 404 handler,
+            // otherwise give a canned response...
+            if(class_exists("\NerdWerkApp\Http\Response404"))
+            {
+                $framework->response = new \NerdWerkApp\Http\Response404();
+            } else {
+                $framework->response = new \NerdWerk\Http\Response(404);
+            }
+        });
 
         // Populate routes from annotations...
         AnnotationRegistry::registerLoader('class_exists');
@@ -49,42 +62,7 @@ class Router
                     $routeAnnotations = $reader->getMethodAnnotation($classMethod, "\\NerdWerk\\Annotations\\Route");
                     if($routeAnnotations instanceof \NerdWerk\Annotations\Route)
                     {
-                        if($routeAnnotations->method)
-                        {
-                            $this->router->match(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, $classMethod->class."@".$classMethod->name);
-                            if($routeAnnotations->authenticationProvider)
-                            {
-                                $apFound = false;
-                                foreach($this->authenticationProviders as $name => $provider)
-                                {
-                                    if($routeAnnotations->authenticationProvider == $name)
-                                    {
-                                        $apFound = true;
-                                        $user = $this->user;
-                                        $this->router->before(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, function() use ($user, $routeAnnotations)
-                                        {
-                                            if(!$user || ($routeAnnotations->authenticationPermission && !$user->hasPermission(authenticationPermission)))
-                                            {
-                                                header('HTTP/1.0 403 Forbidden');
-                                                die();
-                                            }
-                                        });
-                                        break;
-                                    }
-                                }
-                                if(!$apFound)
-                                {
-                                    throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("AuthenticationProvider configured for '".$routeAnnotations->method."/".$routeAnnotations->pattern."' is not configured", 203);
-                                }
-                            }
-                        } else {
-                            if(!$routeAnnotations->authenticationProvider)
-                            {
-                                $this->router->all($routeAnnotations->pattern, $classMethod->class."@".$classMethod->name);
-                            } else {
-                                throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("Routes using authentication providers must specify route HTTP verb (i.e. GET, POST)", 202);
-                            }
-                        }
+                        $this->addRoute($this->framework, $routeAnnotations, [$classMethod->class, $classMethod->name]);
                     }
                 }
             }
@@ -93,18 +71,49 @@ class Router
         // Populate routes from config files...
         foreach($config->routes as $route)
         {
-            switch(count(array_values($route)))
+            $this->addRoute($this->framework, \NerdWerk\Annotations\Route::fromArray($route));
+        }
+    }
+
+    private function addRoute(\NerdWerk\Framework $framework, \NerdWerk\Annotations\Route $routeAnnotations, $callback = null)
+    {
+        if(!$callback)
+        {
+            $callback = $routeAnnotations->callback;
+        }
+        if($routeAnnotations->method)
+        {
+            $this->router->match(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, function() use ($framework, $callback)
             {
-                case 2:
-                    $this->router->all($route[0], $route[1]);
-                break;
-
-                case 3:
-                    $this->router->match(strtoupper($route[0]), $route[1], $route[2]);
-                break;
-
-                default:
-                    throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("Route configuration expects two (pattern and function / callable) or three parameters (method, pattern and function / callable)", 201);
+                $framework->response = call_user_func_array($callback, array_merge(func_get_args(), [$framework]));
+            });
+            if($routeAnnotations->authenticationRequired)
+            {
+                $this->router->before(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, function() use ($framework, $routeAnnotations)
+                {
+                    if(!$framework->getUser() || ($routeAnnotations->authenticationPermission && !$framework->getUser()->hasPermission($routeAnnotations->authenticationPermission)))
+                    {
+                        // Try and hand the 403 error off to the applications 403 handler,
+                        // otherwise give a canned response...
+                        if(class_exists("\NerdWerkApp\Http\Response403"))
+                        {
+                            $framework->response = new \NerdWerkApp\Http\Response403();
+                        } else {
+                            $framework->response = new \NerdWerk\Http\Response(403);
+                            $framework->end();
+                        }
+                    }
+                });
+            }
+        } else {
+            if(!$routeAnnotations->authenticationRequired)
+            {
+                $this->router->all($routeAnnotations->pattern, function() use ($framework, $callback)
+                {
+                    $framework->response = call_user_func_array($callback, array_merge(func_get_args(), [$framework]));
+                });
+            } else {
+                throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("Routes using authentication providers must specify route HTTP verb (i.e. GET, POST or multiple verbs GET|POST)", 202);
             }
         }
     }

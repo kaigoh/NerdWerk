@@ -2,6 +2,8 @@
 
 namespace NerdWerkApp\Controllers;
 
+use \NerdWerk\Http\Response as Response;
+use \NerdWerk\Http\SimpleResponse as SimpleResponse;
 use \NerdWerk\Annotations\Route as Route;
 use \NerdWerk\Annotations\EventListener as EventListener;
 
@@ -11,17 +13,17 @@ class Home extends \NerdWerk\Controller
 	/**
 	 * @Route(pattern="/")
 	 */
-	public function index()
+	public function index($framework)
 	{
-		echo "NerdWerk PHP Framework\r\n";
+		return new SimpleResponse(200, "NerdWerk PHP Framework");
 	}
 
 	/**
-	 * @Route(method="get", pattern="/framework/test/{icles}", authenticationProvider="config_file")
+	 * @Route(method="get", pattern="/framework/test/{icles}", authenticationRequired=true)
 	 */
-	public function test($icles)
+	public function test($icles, $framework)
 	{
-		echo "In the test method, ".$icles;
+		return new Response(200, ["user" => $framework->getUser()->username], "application/json");
 	}
 
 	/**
