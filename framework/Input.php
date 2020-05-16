@@ -19,7 +19,7 @@ class Input
         // Throw an exception if config not passed
         if(!$config)
         {
-            throw new \NerdWerk\Exceptions\NerdWerkConfigException("Application configuration not passed to constructor", 100);
+            throw new \NerdWerk\Exceptions\ConfigException("Application configuration not passed to constructor", 100);
         }
 
         // Populate the data arrays...

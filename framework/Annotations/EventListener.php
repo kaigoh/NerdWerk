@@ -31,7 +31,7 @@ final class EventListener
 
 			return $e;
 		} else {
-			throw new \NerdWerk\Exceptions\NerdWerkEventListenerConfigurationNotValidException("Value passed to fromArray was not an array", 200);
+			throw new \NerdWerk\Exceptions\EventListenerConfigurationNotValidException("Value passed to fromArray was not an array", 200);
 		}
 	}
 

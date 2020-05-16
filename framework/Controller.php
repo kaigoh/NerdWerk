@@ -10,12 +10,8 @@ class Controller
 
     public function __construct()
     {
-        $this->framework = GetFramework();
-    }
-
-    protected function emit($event, $data)
-    {
-        $this->framework->events->emit($event, $data);
+        global $framework;
+        $this->framework = $framework;
     }
 
 }

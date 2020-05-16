@@ -1,8 +1,8 @@
 <?php
 
-namespace NerdWerk\Authentication;
+namespace NerdWerk\Interfaces;
 
-interface AuthenticationProviderInterface
+interface AuthenticationProvider
 {
     public function authenticate($domain, $username, $password) : ?\NerdWerk\Authentication\User;
 }

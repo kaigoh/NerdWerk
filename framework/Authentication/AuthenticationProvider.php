@@ -2,7 +2,7 @@
 
 namespace NerdWerk\Authentication;
 
-abstract class AuthenticationProvider implements AuthenticationProviderInterface
+abstract class AuthenticationProvider implements \NerdWerk\Interfaces\AuthenticationProvider
 {
     public abstract function authenticate($domain, $username, $password) : ?\NerdWerk\Authentication\User;
 }

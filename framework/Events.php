@@ -10,16 +10,19 @@ use Doctrine\Common\Cache\FilesystemCache;
 class Events
 {
 
+    private $framework;
     private $listeners = [];
 
-    public function __construct(\NerdWerk\Config $config = null)
+    public function __construct(\NerdWerk\Framework &$framework = null, \NerdWerk\Config $config = null)
     {
 
         // Throw an exception if config not passed
         if(!$config)
         {
-            throw new \NerdWerk\Exceptions\NerdWerkConfigException("Application configuration not passed to constructor", 100);
+            throw new \NerdWerk\Exceptions\ConfigException("Application configuration not passed to constructor", 100);
         }
+
+        $this->framework = $framework;
 
         // Populate routes from annotations...
         AnnotationRegistry::registerLoader('class_exists');
@@ -69,7 +72,7 @@ class Events
                 // Send the event and any data to the listeners...
                 foreach($this->listeners[$event] as $e)
                 {
-                    call_user_func_array($e, $data);
+                    call_user_func_array($e, [$data, &$this->framework]);
                 }
                 return true;
             }
@@ -92,7 +95,7 @@ class Events
                 return true;
             }
         }
-        throw new \NerdWerk\Exceptions\NerdWerkEventListenerConfigurationNotValidException("Event configuration expects two parameters: event and function / callable", 301);
+        throw new \NerdWerk\Exceptions\EventListenerConfigurationNotValidException("Event configuration expects two parameters: event and function / callable", 301);
     }
 
 }

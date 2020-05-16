@@ -1,8 +1,8 @@
 <?php
 
-namespace NerdWerk\Authentication\CredentialSources;
+namespace NerdWerk\Interfaces;
 
-interface CredentialSourceInterface
+interface CredentialSource
 {
     public function getCredentials() : ?\NerdWerk\Authentication\Credentials;
 }

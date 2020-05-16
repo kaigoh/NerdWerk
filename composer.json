@@ -11,13 +11,17 @@
     "autoload": {
         "psr-4": {
             "NerdWerk\\": "framework/",
-            "NerdWerkApp\\": "application/"
+            "NerdWerkApp\\Http\\": "application/http",
+            "NerdWerkApp\\Models\\": "application/models",
+            "NerdWerkApp\\Controllers\\": "application/controllers"
         }
     },
     "require": {
         "doctrine/annotations": "^1.10",
         "bramus/router": "^1.4",
         "vlucas/phpdotenv": "^4.1",
-        "doctrine/cache": "^1.10"
+        "doctrine/cache": "^1.10",
+        "byjg/jwt-session": "^2.0",
+        "twig/twig": "^3.0"
     }
 }

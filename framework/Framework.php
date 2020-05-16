@@ -2,6 +2,33 @@
 
 namespace NerdWerk;
 
+/**
+ * Framework Constants
+ */
+ $frameworkConstants = [
+    "NW_FRAMEWORK_PATH" => "framework",
+    "NW_APPLICATION_PATH" => "application",
+    "NW_CONFIG_PATH" => "config",
+    "NW_CACHE_PATH" => "cache",
+    "NW_AUTHENTICATION_ALGORITHM" => "sha256",
+    "NW_RENDERERS_XML_ROOT_TAG" => "response",
+    "NW_ENVIRONMENT" => "not-set",
+];
+foreach($frameworkConstants as $k => $v)
+{
+    if(!defined($k))
+    {
+        define($k, (getenv($k) ? getenv($k) : $v));
+    }
+    if($k == "NW_ENVIRONMENT")
+    {
+        if(NW_ENVIRONMENT == "not-set")
+        {
+            die("NW_ENVIRONMENT has not been defined! Set it to either 'development' or 'production' in the environment file, or by defining a constant in index.php");
+        }
+    }
+}
+
 use \NerdWerk\Authentication\CredentialSource as CredentialSource;
 use \NerdWerk\Authentication\AuthenticationProvider as AuthenticationProvider;
 
@@ -84,7 +111,7 @@ class Framework
     {
 
         // Initialise the events engine
-        $this->events = new \NerdWerk\Events($this->config);
+        $this->events = new \NerdWerk\Events($this, $this->config);
 
         // Gather inputs
         $this->input = new \NerdWerk\Input($this->config);

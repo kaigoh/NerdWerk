@@ -2,7 +2,7 @@
 
 namespace NerdWerk\Http;
 
-class Response implements ResponseInterface
+class Response implements \NerdWerk\Interfaces\HttpResponse
 {
 
     private $httpVersion = "HTTP/1.1";
@@ -141,31 +141,23 @@ class Response implements ResponseInterface
         {
             case "text/json":
             case "application/json":
-                return json_encode($this->response);
+                return \NerdWerk\Http\ResponseRenderers\JsonRenderer::render($this->response);
             break;
 
             case "text/xml":
             case "application/xml":
-                $xml = new \SimpleXMLElement("<response/>");
-                array_walk_recursive(array_flip($this->response), array($xml, "addChild"));
-                return $xml->asXML();
+                return \NerdWerk\Http\ResponseRenderers\XmlRenderer::render($this->response);
             break;
 
             case "text/csv":
-                $csv = fopen("php://memory", "r+");
-                foreach($this->response as $r)
-                {
-                    fputcsv($csv, $r);
-                }
-                rewind($csv);
-                return stream_get_contents($csv);
+                return \NerdWerk\Http\ResponseRenderers\CsvRenderer::render($this->response);
             break;
         }
         if(is_string($this->response))
         {
             return $this->response;
         } else {
-            throw new \NerdWerk\Exceptions\NerdWerkHttpResponseException("Response passed is not a string type, and no MIME-type has been specified", 600);
+            throw new \NerdWerk\Exceptions\HttpResponseException("Response passed is not a string type, and no MIME-type has been specified", 600);
         }
     }
 

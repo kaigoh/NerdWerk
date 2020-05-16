@@ -17,7 +17,7 @@ class Domain
             $this->domain = $domain;
             $this->name = ($name ? $name : $domain);
         } else {
-            throw new \NerdWerk\Exceptions\NerdWerkAuthenticationDomainException("Domain name not passed to constructor", 501);
+            throw new \NerdWerk\Exceptions\AuthenticationDomainException("Domain name not passed to constructor", 501);
         }
     }
 

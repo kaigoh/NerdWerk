@@ -40,7 +40,7 @@ final class Route
 
 			return $r;
 		} else {
-			throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("Value passed to fromArray was not an array", 200);
+			throw new \NerdWerk\Exceptions\RouteConfigurationNotValidException("Value passed to fromArray was not an array", 200);
 		}
 	}
 

@@ -15,28 +15,12 @@ if(file_exists(".env"))
 }
 
 /**
- * Framework Constants
+ * Function to allow a reference to the Framework object to be obtained - Do not remove!
  */
-define("NW_FRAMEWORK_PATH", "framework"); // You shouldn't need to ever change this, but just in case...
-define("NW_APPLICATION_PATH", "application"); // You shouldn't need to ever change this, but just in case...
-define("NW_CONFIG_PATH", "config"); // You shouldn't need to ever change this, but just in case...
-define("NW_CACHE_PATH", "cache"); // You shouldn't need to ever change this, but just in case...
-
-define("NW_AUTHENTICATION_ALGORITHM", "sha256"); // In case you need to tweak password hashing
-
-define("NW_ENVIRONMENT", "development"); // Change this to "production" once you are ready!
-
-/**
- * CLI Routing
- * 
- * Set some properties in the $_SERVER array that are missing when the script is called from the CLI
- */
-if(php_sapi_name() == "cli")
+function GetFramework()
 {
-    $_SERVER['REQUEST_METHOD'] = "GET";
-    $_SERVER['SERVER_PROTOCOL'] = "HTTP/1.1";
-    // Make the CLI arguments look like a URL...
-    $_SERVER['REQUEST_URI'] = "/".implode("/", array_slice($argv, 1));
+    global $framework;
+    return $framework->getInstance();
 }
 
 /**
@@ -59,12 +43,3 @@ $framework->addCredentialSource(new NerdWerk\Authentication\CredentialSources\Ba
  * ...and run it
  */
 $framework->run();
-
-/**
- * Function to allow a reference to the Framework object to be obtained
- */
-function GetFramework()
-{
-    global $framework;
-    return $framework->getInstance();
-}

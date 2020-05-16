@@ -1,8 +1,8 @@
 <?php
 
-namespace NerdWerk\Http;
+namespace NerdWerk\Interfaces;
 
-interface ResponseInterface
+interface HttpResponse
 {
 
     public function addHeader(string $key = null, ?string $value = null);

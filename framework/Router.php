@@ -14,13 +14,27 @@ class Router
     private $router;
     public $http404Callback = null;
 
-    public function __construct(\NerdWerk\Framework $framework = null, \NerdWerk\Config $config = null, $authenticationProviders = [])
+    public function __construct(\NerdWerk\Framework &$framework = null, \NerdWerk\Config $config = null, $authenticationProviders = [])
     {
 
         // Throw an exception if config not passed
         if(!$config)
         {
-            throw new \NerdWerk\Exceptions\NerdWerkConfigException("Application configuration not passed to constructor", 100);
+            throw new \NerdWerk\Exceptions\ConfigException("Application configuration not passed to constructor", 100);
+        }
+
+        /**
+         * CLI Routing
+         * 
+         * Set some properties in the $_SERVER array that are missing when the script is called from the CLI
+         */
+        if(php_sapi_name() == "cli")
+        {
+            global $argv;
+            $_SERVER['REQUEST_METHOD'] = "GET";
+            $_SERVER['SERVER_PROTOCOL'] = "HTTP/1.1";
+            // Make the CLI arguments look like a URL...
+            $_SERVER['REQUEST_URI'] = "/".implode("/", array_slice($argv, 1));
         }
 
         $this->framework = $framework;
@@ -48,7 +62,7 @@ class Router
             new FilesystemCache(NW_CACHE_PATH.DIRECTORY_SEPARATOR."router"),
             $debug = (NW_ENVIRONMENT == "development")
         );
-        $controllerPath = NW_APPLICATION_PATH.DIRECTORY_SEPARATOR."Controllers";
+        $controllerPath = NW_APPLICATION_PATH.DIRECTORY_SEPARATOR."controllers";
         $controllerFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($controllerPath));
         foreach($controllerFiles as $file => $fileInfo)
         {
@@ -85,7 +99,7 @@ class Router
         {
             $this->router->match(strtoupper($routeAnnotations->method), $routeAnnotations->pattern, function() use ($framework, $callback)
             {
-                $framework->response = call_user_func_array($callback, array_merge(func_get_args(), [$framework]));
+                $framework->response = call_user_func_array($callback, array_merge(func_get_args(), [&$framework]));
             });
             if($routeAnnotations->authenticationRequired)
             {
@@ -110,10 +124,10 @@ class Router
             {
                 $this->router->all($routeAnnotations->pattern, function() use ($framework, $callback)
                 {
-                    $framework->response = call_user_func_array($callback, array_merge(func_get_args(), [$framework]));
+                    $framework->response = call_user_func_array($callback, array_merge(func_get_args(), [&$framework]));
                 });
             } else {
-                throw new \NerdWerk\Exceptions\NerdWerkRouteConfigurationNotValidException("Routes using authentication providers must specify route HTTP verb (i.e. GET, POST or multiple verbs GET|POST)", 202);
+                throw new \NerdWerk\Exceptions\RouteConfigurationNotValidException("Routes using authentication providers must specify route HTTP verb (i.e. GET, POST or multiple verbs GET|POST)", 202);
             }
         }
     }

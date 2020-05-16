@@ -17,7 +17,7 @@ class ConfigFile extends \NerdWerk\Authentication\AuthenticationProvider
         // Throw an exception if config not passed
         if(!$config)
         {
-            throw new \NerdWerk\Exceptions\NerdWerkConfigException("Application configuration not passed to constructor", 100);
+            throw new \NerdWerk\Exceptions\ConfigException("Application configuration not passed to constructor", 100);
         }
 
         // Load users and groups from config...
@@ -35,7 +35,7 @@ class ConfigFile extends \NerdWerk\Authentication\AuthenticationProvider
                             {
                                 $this->directory->createDomain($domain['domain'], (isset($domain['name']) ? $domain['name'] : null));
                             } else {
-                                throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("Domain configuration not valid - Missing 'domain' key", 401);
+                                throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("Domain configuration not valid - Missing 'domain' key", 401);
                             }
                         }
                     break;
@@ -58,10 +58,10 @@ class ConfigFile extends \NerdWerk\Authentication\AuthenticationProvider
                                     $this->directory->domain($group['domain'])->createGroup($group['name'], (isset($group['permissions']) && is_array($group['permissions']) ? $group['permissions'] : []));
 
                                 } else {
-                                    throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("Group configuration not valid - Missing 'name' key", 403);
+                                    throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("Group configuration not valid - Missing 'name' key", 403);
                                 }
                             } else {
-                                throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("Group configuration not valid - Missing 'domain' key", 402);
+                                throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("Group configuration not valid - Missing 'domain' key", 402);
                             }
                         }
                     break;
@@ -77,7 +77,7 @@ class ConfigFile extends \NerdWerk\Authentication\AuthenticationProvider
                                     // Check that a password has been defined...
                                     if(!isset($user['password']))
                                     {
-                                        throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("User configuration not valid - No password has been defined for '".$user['username']."'", 407);
+                                        throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("User configuration not valid - No password has been defined for '".$user['username']."'", 407);
                                     }
 
                                     // Check that the domain this user belongs to has been defined...
@@ -98,25 +98,25 @@ class ConfigFile extends \NerdWerk\Authentication\AuthenticationProvider
                                             (isset($user['groups']) && is_array($user['groups']) ? $user['groups'] : [])
                                         );
                                     } else {
-                                        throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("User configuration not valid - Duplicate username '".$user['username']."'", 406);
+                                        throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("User configuration not valid - Duplicate username '".$user['username']."'", 406);
                                     }
                                 } else {
-                                    throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("User configuration not valid - Missing 'username' key", 405);
+                                    throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("User configuration not valid - Missing 'username' key", 405);
                                 }
                             } else {
-                                throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("User configuration not valid - Missing 'domain' key", 404);
+                                throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("User configuration not valid - Missing 'domain' key", 404);
                             }
                         }
                     break;
 
                     default:
-                        throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("Authentication configuration not valid - Unknown key '".$k."'", 400);
+                        throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("Authentication configuration not valid - Unknown key '".$k."'", 400);
                     break;
 
                 }
             }
         } else {
-            throw new \NerdWerk\Exceptions\NerdWerkFileAuthenticationConfigException("Authentication configuration empty", 400);
+            throw new \NerdWerk\Exceptions\FileAuthenticationConfigException("Authentication configuration empty", 400);
         }
 
     }

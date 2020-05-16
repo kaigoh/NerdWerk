@@ -27,7 +27,7 @@ class Config
                 }
             }
         } else {
-            throw new NerdWerk\Exceptions\NerdWerkConfigDirectoryNotFoundException("Framework config directory not found", 101);
+            throw new \NerdWerk\Exceptions\ConfigDirectoryNotFoundException("Framework config directory not found", 101);
         }
     }
 
