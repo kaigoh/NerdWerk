@@ -38,7 +38,7 @@ class Events
             if($fileInfo->isFile() && $fileInfo->getExtension() == "php")
             {
                 $classNameRaw = array_filter(explode(DIRECTORY_SEPARATOR, str_replace([$applicationPath, ".php"], "", $fileInfo->getPathname())));
-                $className = "\\NerdWerkApp\\".implode("\\", $classNameRaw);
+                $className = "\\NerdWerkApp\\".implode("\\", array_map(function($p) { return ucfirst($p); }, $classNameRaw));
                 if(class_exists($className))
                 {
                     $reflectionClass = new \ReflectionClass($className);

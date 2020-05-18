@@ -37,6 +37,7 @@ class Framework
 {
 
     public $config;
+    public $log;
     public $events;
     public $router;
     public $input;
@@ -50,6 +51,8 @@ class Framework
         
         // Load application configuration
         $this->config = new \NerdWerk\Config();
+
+        $this->log = new \NerdWerk\Log("framework");
 
     }
 

@@ -52,7 +52,7 @@ class Home extends \NerdWerk\Controller
 	 */
 	public function eventTest($timestamp)
 	{
-		//echo "In eventTest! ".$timestamp;
+		GetFramework()->log->info("In eventTest!");
 	}
 
 }
