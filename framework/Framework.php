@@ -10,6 +10,7 @@ namespace NerdWerk;
     "NW_APPLICATION_PATH" => "application",
     "NW_CONFIG_PATH" => "config",
     "NW_CACHE_PATH" => "cache",
+    "NW_LOG_PATH" => "logs",
     "NW_AUTHENTICATION_ALGORITHM" => "sha256",
     "NW_RENDERERS_XML_ROOT_TAG" => "response",
     "NW_ENVIRONMENT" => "not-set",

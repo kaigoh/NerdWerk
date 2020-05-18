@@ -79,7 +79,7 @@ class Response implements \NerdWerk\Interfaces\HttpResponse
 
     private $response = null;
 
-    private $mimeType = false;
+    private $mimeType = null;
 
     public function __construct(int $code = null, $response = null, ?string $mimeType = null)
     {
@@ -87,13 +87,26 @@ class Response implements \NerdWerk\Interfaces\HttpResponse
         {
             $this->setResponseCode($code);
         }
-        if($response)
-        {
-            $this->setResponse($response);
-        }
+
         if($mimeType)
         {
             $this->setMimeType($mimeType);
+        }
+
+        if($response)
+        {
+            if(!is_string($response))
+            {
+                if($json = json_encode($response))
+                {
+                    // Set JSON mime type (if mime type has not already been overridden)
+                    $this->mimeType = ($this->mimeType ? $this->mimeType : "application/json");
+                    $response = $json;
+                } else {
+                    throw new \NerdWerk\Exceptions\HttpResponseException("Response is not a string and cannot be serialized to JSON", 600);
+                }
+            }
+            $this->setResponse($response);
         }
     }
 
@@ -135,35 +148,9 @@ class Response implements \NerdWerk\Interfaces\HttpResponse
         $this->response = $response;
     }
 
-    private function renderResponse()
-    {
-        switch(strtolower($this->mimeType))
-        {
-            case "text/json":
-            case "application/json":
-                return \NerdWerk\Http\ResponseRenderers\JsonRenderer::render($this->response);
-            break;
-
-            case "text/xml":
-            case "application/xml":
-                return \NerdWerk\Http\ResponseRenderers\XmlRenderer::render($this->response);
-            break;
-
-            case "text/csv":
-                return \NerdWerk\Http\ResponseRenderers\CsvRenderer::render($this->response);
-            break;
-        }
-        if(is_string($this->response))
-        {
-            return $this->response;
-        } else {
-            throw new \NerdWerk\Exceptions\HttpResponseException("Response passed is not a string type, and no MIME-type has been specified", 600);
-        }
-    }
-
     public function getResponse()
     {
-        return $this->renderResponse();
+        return $this->response;
     }
 
     public function __tostring()
@@ -177,7 +164,7 @@ class Response implements \NerdWerk\Interfaces\HttpResponse
         {
             $output[] = $key.": ".$value;
         }
-        return implode("\r\n", array_merge($output, [null, $this->renderResponse()]));
+        return implode("\r\n", array_merge($output, [null, $this->getResponse()]));
     }
 
     public function sendResponse()
@@ -195,7 +182,7 @@ class Response implements \NerdWerk\Interfaces\HttpResponse
         }
 
         // Send body
-        die($this->renderResponse());
+        die($this->getResponse());
     }
 
 }

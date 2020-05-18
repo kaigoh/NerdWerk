@@ -4,7 +4,10 @@ namespace NerdWerkApp\Controllers;
 
 use \NerdWerk\View as View;
 use \NerdWerk\Template as Template;
+use \NerdWerk\Http\Responses as Responses;
 use \NerdWerk\Http\Response as Response;
+use \NerdWerk\Http\JsonResponse as JsonResponse;
+use \NerdWerk\Http\XmlResponse as XmlResponse;
 use \NerdWerk\Http\SimpleResponse as SimpleResponse;
 use \NerdWerk\Annotations\Route as Route;
 use \NerdWerk\Annotations\EventListener as EventListener;
@@ -33,7 +36,7 @@ class Home extends \NerdWerk\Controller
 	 */
 	public function helloJson(&$framework)
 	{
-		return new Response(200, ["hi" => $framework->getUser()->username], "application/json");
+		return Responses::Json(["hi" => $framework->getUser()->username]);
 	}
 
 	/**
@@ -41,7 +44,7 @@ class Home extends \NerdWerk\Controller
 	 */
 	public function helloXml(&$framework)
 	{
-		return new Response(200, ["hi" => $framework->getUser()->username], "text/xml");
+		return new XmlResponse(200, ["hi" => $framework->getUser()->username]);
 	}
 
 	/**

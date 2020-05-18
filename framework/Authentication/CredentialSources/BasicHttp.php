@@ -12,14 +12,14 @@ class BasicHttp extends \NerdWerk\Authentication\CredentialSource
 
     public function __construct(string $realm = null)
     {
-        $this->realm;
+        $this->realm = ($realm ? $realm : "Authenticate");
     }
 
     private function collectCredentials()
     {
         if(!isset($_SERVER['PHP_AUTH_USER']))
         {
-            header('WWW-Authenticate: Basic realm="'.($this->realm ? $this->realm : "Authenticate").'"');
+            header('WWW-Authenticate: Basic realm="'.$this->realm.'"');
             header('HTTP/1.0 401 Unauthorized');
             die("Unauthorised");
         } else {
